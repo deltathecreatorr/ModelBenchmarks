@@ -2,7 +2,7 @@
 
 ## Description
 
-This repository holds the benchmarking of pretrained CNN models for identifying objects. The model is to identify common objects within a standard household environment. The model that is the most suitable for a Raspberry Pi 5 8GB embedded system will be transferred using ONNX Runtime.
+This repository holds the benchmarking of pretrained CNN models for identifying objects. The model is to identify common objects within a standard household environment. The model that is the most suitable for a Raspberry Pi 5 8GB embedded system will be transferred using ONNX Runtime. The problem of real time object detection has many applications of neural networks being applied to it, and it has been recently found out that RT-DETRs often have a greater accuracy than YOLO models. While this is true for seemingly unconstrained systems, using a deep learning model on a mobile system has created the problem of making sure the model can run within strict constraints.
 
 ## Pre-requisites
 
