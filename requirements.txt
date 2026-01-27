@@ -2,4 +2,7 @@ numpy
 matplotlib
 opencv-python
 onnxruntime
-ultralytics
+keras
+tensorflow
+scikit-learn
+pandas
