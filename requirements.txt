@@ -6,3 +6,5 @@ keras
 tensorflow
 scikit-learn
 pandas
+transformers
+torch
