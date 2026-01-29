@@ -8,3 +8,4 @@ scikit-learn
 pandas
 transformers
 torch
+ultralytics
