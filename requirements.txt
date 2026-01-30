@@ -9,3 +9,4 @@ pandas
 transformers
 torch
 ultralytics
+optimum-onnx
