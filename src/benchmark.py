@@ -1,14 +1,13 @@
-from transformers import AutoImageProcessor, AutoModelForObjectDetection, AutoTokenizer
-from pathlib import Path
-
+from transformers import AutoImageProcessor, AutoModelForObjectDetection 
 from PIL import Image
 import torch
 
-from ultralytics import YOLO
+from ultralytics import YOLO, RTDETR
 
 models_to_benchmark =[
     "hustvl/yolos-tiny",
-    "PekingU/rtdetr_r18vd_coco_o365"
+    "PekingU/rtdetr_r18vd_coco_o365",
+    "apple/mobilevit-small"
 ]
 
 ultralytics_model = [
@@ -20,8 +19,8 @@ ultralytics_model = [
 
 
 
-# processor = AutoImageProcessor.from_pretrained(models_to_benchmark[1])
-# model = AutoModelForObjectDetection.from_pretrained(models_to_benchmark[1])
+# processor = AutoImageProcessor.from_pretrained(models_to_benchmark[2])
+# model = AutoModelForObjectDetection.from_pretrained(models_to_benchmark[2])
 
 # url = "object\\couch.png"
 # image = Image.open(url).convert("RGB")
@@ -39,7 +38,7 @@ ultralytics_model = [
 #     class_name = model.config.id2label[label.item()]
 #     print(f"Detected {class_name} with {round(score.item(), 3)} confidence at location {box}")
 
-# model = YOLO(ultralytics_model[3])
-# success = model.export(format="onnx")  # export the model to ONNX format
-# # source = "object\\couch.png"
-# # model.predict(source, save=True)
+model = RTDETR("rtdetr-l.pt")
+success = model.export(format="onnx")
+source = "object\\couch.png"
+model.predict(source, save=True)
