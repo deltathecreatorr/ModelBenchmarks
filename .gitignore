@@ -7,3 +7,5 @@ yolov8n.pt
 yolov10n.pt
 rtdetr-l.pt
 onnx/centernet.onnx
+onnx/ssd-mobilenet.onnx
+onnx/
