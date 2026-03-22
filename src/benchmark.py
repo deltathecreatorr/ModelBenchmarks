@@ -1,5 +1,6 @@
 import torchvision
 import onnxruntime
+from onnxruntime.quantization import quantize_static, QuantType, CalibrationDataReader
 import os
 import matplotlib.pyplot as plt
 import numpy as np
@@ -14,22 +15,28 @@ annotations_file = './data/annotations/instances_val2017.json'
 coco_data = torchvision.datasets.CocoDetection(root=images_folder, annFile=annotations_file)
 
 model_paths = {
-    "yolov10n": './onnx/yolov10n.onnx',
-    "yolov8n": './onnx/yolov8n.onnx',
-    "yolo26n": './onnx/yolo26n.onnx',
-    "yolo11n": './onnx/yolo11n.onnx',
+    "yolov10n": './onnx/quantized/yolov10n_int8.onnx',
+    "yolov8n": './onnx/quantized/yolov8n_int8.onnx',
+    "yolo26n": './onnx/quantized/yolo26n_int8.onnx',
+    "yolo11n": './onnx/quantized/yolo11n_int8.onnx',
     "ssd-mobilenet": './onnx/ssd-mobilenet.onnx',
-    "rtdetr-l": './onnx/rtdetr-l.onnx',
     "efficientdet-d1": './onnx/efficientdet-d1.onnx',
     "centernet": './onnx/centernet.onnx',
-    "yolos-tiny": './onnx/yolos-tiny-onnx/model.onnx',
-    "r18vd": "./onnx/r18vd/model.onnx"
+    "yolos-tiny": './onnx/yolos-tiny-onnx/model_int8.onnx',
+    "r18vd": "./onnx/r18vd/model_int8.onnx",
+    "nanodet-plus-m_416": "./onnx/nanodet-plus-m_416_int8.onnx",
 }
 
 session_options = onnxruntime.SessionOptions()
 session_options.graph_optimization_level = onnxruntime.GraphOptimizationLevel.ORT_ENABLE_ALL
-session_options.intra_op_num_threads = 4
+session_options.intra_op_num_threads = 2
+session_options.inter_op_num_threads = 1
+session_options.execution_mode = onnxruntime.ExecutionMode.ORT_SEQUENTIAL
 
+providers = [
+    ("XnnpackExecutionProvider", {"intra_op_num_threads": 2}),
+    "CPUExecutionProvider",
+]
 
 def gather_images(num_images=10, seed=42):
     random.seed(seed)
@@ -51,7 +58,7 @@ def preprocess_image(image, model_session):
     target_type = model_input.type
     target_shape = model_input.shape
 
-    img_array = np.array(image)
+    img_array = np.array(image.convert("RGB"))
 
     if len(target_shape) >= 4 and target_shape[1] == 3:
         height_index, width_index = 2, 3
@@ -63,8 +70,10 @@ def preprocess_image(image, model_session):
 
     resized_img = cv2.resize(img_array, (target_width, target_height))
 
+    img_chw = np.transpose(resized_img, (2, 0, 1))
+
     if target_type == "tensor(uint8)":
-        return np.expand_dims(resized_img, axis=0).astype(np.uint8)
+        return np.expand_dims(img_chw, axis=0).astype(np.uint8)
     elif target_type == "tensor(float)":
         img_float = resized_img.astype(np.float32) / 255.0
 
@@ -81,7 +90,7 @@ def benchmark_model(images):
             print(f"Model {model_name} not found at {model_path}. Skipping.")
             continue
 
-        session = onnxruntime.InferenceSession(model_path, sess_options=session_options)
+        session = onnxruntime.InferenceSession(model_path, sess_options=session_options, providers=providers)
         input_name = session.get_inputs()[0].name
         output_names = [output.name for output in session.get_outputs()]
         print(f"Loaded {model_name} with input name: {input_name}")
