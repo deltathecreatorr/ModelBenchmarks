@@ -9,3 +9,4 @@ rtdetr-l.pt
 onnx/centernet.onnx
 onnx/ssd-mobilenet.onnx
 onnx/
+/data
