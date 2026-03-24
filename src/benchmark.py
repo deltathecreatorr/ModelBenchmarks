@@ -35,14 +35,14 @@ coco_data = torchvision.datasets.CocoDetection(root=images_folder, annFile=annot
 
 #Model paths for each ONNX model for the benchmark. Some of the models have been quanitsed as this speeds up inference.
 model_paths = {
-    "yolov10n": './onnx/quantized/yolov10n_int8.onnx',
-    "yolov8n": './onnx/quantized/yolov8n_int8.onnx',
-    "yolo26n": './onnx/quantized/yolo26n_int8.onnx',
-    "yolo11n": './onnx/quantized/yolo11n_int8.onnx',
-    "yolov5n": './onnx/quantized/yolov5n_int8.onnx',
-    "yolov6nlite": './onnx/yolov6nlite/yolov6lite_s.onnx',
-    "nanodet-plus-m_416": "./onnx/nanodet-plus-m_416.onnx",
-    "picodet_s": './onnx/picodet_s_320.onnx'
+    "YOLOv10n": './onnx/quantized/yolov10n_int8.onnx',
+    "YOLOv8n": './onnx/quantized/yolov8n_int8.onnx',
+    "YOLOv26n": './onnx/quantized/yolo26n_int8.onnx',
+    "YOLOv11n": './onnx/quantized/yolo11n_int8.onnx',
+    "YOLOv5n": './onnx/quantized/yolov5n_int8.onnx',
+    "YOLOv6nlite": './onnx/yolov6nlite/yolov6lite_s.onnx',
+    "NanoDet-M": "./onnx/nanodet-plus-m_416.onnx",
+    "PicoDet-S": './onnx/picodet_s_320.onnx'
 }
 
 #ONNX Runtime session options to optimise for ARM CPU inference.
@@ -355,32 +355,36 @@ def plot_graphs(results):
     colors = plt.cm.tab10(np.linspace(0, 1, len(successful_models)))
 
     # Beeswarm plot for latency to show the distribution of latency values per image.
-    axes[0].set_title('Normalized Latency (Every Single Frame)')
-    axes[0].set_ylabel('Latency per Megapixel (ms/MP)')
+    axes[0].set_title('Normalized Latency (Every Single Frame)', fontsize=30, fontweight='bold')
+    axes[0].set_ylabel('Latency per Megapixel (ms/MP)', fontsize=16)
     sns.stripplot(data=latencies, ax=axes[0], palette='tab10', size=3, jitter=True, alpha=0.6)
     axes[0].set_xticks(range(len(successful_models)))
-    axes[0].set_xticklabels(successful_models, rotation=45)
+    axes[0].set_xticklabels([])
+    axes[0].tick_params(axis='both', labelsize=16)
     axes[0].grid(True, axis='y', linestyle='--', alpha=0.5)
 
     # Box plot for CPU usage to show the average CPU load for each model including spikes in CPU usage as part of the box plot.
-    bplot2 = axes[1].boxplot(cpus, tick_labels=successful_models, patch_artist=True, showfliers=False)
-    axes[1].set_title('CPU Load (Baseline & Spikes)')
-    axes[1].set_ylabel('CPU Usage (%)')
-    axes[1].tick_params(axis='x', rotation=45)
+    bplot2 = axes[1].boxplot(cpus, labels=successful_models, patch_artist=True, showfliers=False)
+    axes[1].set_title('CPU Load (Baseline & Spikes)', fontsize=30, fontweight='bold')
+    axes[1].set_ylabel('CPU Usage (%)', fontsize=16)
+    axes[1].tick_params(axis='y', labelsize=16)
     axes[1].grid(True, linestyle='--', alpha=0.5)
+    axes[1].set_xticklabels([])
 
     # bar plot for RAM usage
     axes[2].bar(successful_models, avg_rams, color=colors, edgecolor='black')
-    axes[2].set_title('Average RAM Footprint')
-    axes[2].set_ylabel('Megabytes (MB)')
-    axes[2].tick_params(axis='x', rotation=45)
+    axes[2].set_title('Average RAM Footprint', fontsize=30, fontweight='bold')
+    axes[2].set_ylabel('Megabytes (MB)', fontsize=16)
+    axes[2].tick_params(axis='y', labelsize=16)
     axes[2].grid(True, axis='y', linestyle='--', alpha=0.5)
+    axes[2].set_xticks(range(len(successful_models)))
     axes[2].set_ylim(bottom=400)
+    axes[2].set_xticklabels(successful_models, rotation=45, fontsize=16)
 
     #Temp change line plot to show the overall heating trend of the CPU, the initial change will have different starting temperatures.
-    axes[3].set_title('Overall CPU Heating Trend')
-    axes[3].set_ylabel('Temp Increase (°C)')
-    axes[3].set_xlabel('Images Processed (Time)')
+    axes[3].set_title('Overall CPU Heating Trend', fontsize=30, fontweight='bold')
+    axes[3].set_ylabel('Temp Increase (°C)', fontsize=16)
+    axes[3].set_xlabel('Images Processed (Time)', fontsize=16)
     
     for idx, model in enumerate(successful_models):
         temps = results[model].get('per_image_temp', [])
@@ -409,7 +413,7 @@ def plot_graphs(results):
                 linewidth=2
             )
 
-    axes[3].legend(loc='upper left', fontsize=8)
+    axes[3].legend(loc='upper left', fontsize=16)
     axes[3].grid(True, linestyle='--', alpha=0.5)
 
     colors = plt.cm.tab10(np.linspace(0, 1, len(successful_models)))
@@ -452,9 +456,9 @@ def plot_power_and_battery(results):
         avg_powers.append(avg_w)
 
     axes.bar(successful_models, avg_powers, color=colors, edgecolor='black', alpha=0.8)
-    axes.set_title('Average Power Draw', fontsize=14)
-    axes.set_ylabel('Average Power (Watts)')
-    axes.tick_params(axis='x', rotation=45)
+    axes.set_title('Average Power Draw', fontsize=30, fontweight='bold')
+    axes.set_ylabel('Average Power (Watts)', fontsize=16)
+    axes.tick_params(axis='x', rotation=45, fontsize=16)
     axes.grid(True, axis='y', linestyle='--', alpha=0.5)
 
     axes.set_ylim(bottom=5.0)
