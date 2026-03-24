@@ -2,3 +2,9 @@ torch
 torchvision
 onnxruntime
 pycocotools
+matplotlib
+opencv-python
+psutil
+seaborn
+numpy
+pi-ina219
